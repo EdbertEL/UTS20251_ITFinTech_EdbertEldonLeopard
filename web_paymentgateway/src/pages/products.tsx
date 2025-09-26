@@ -1,11 +1,12 @@
 import Header from '@/components/header'; // The '@/' alias points to the 'src' folder
 import ProductCard from '@/components/ProductCard';
 import Sidebar from '@/components/sidebar';
-import { products } from '@/data/dummy-products';
 import { FiSearch } from 'react-icons/fi';
-import { useState } from 'react'; 
+import { useState } from 'react';
+import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
+import { MongoProduct, Product } from '@/types';
 
-export default function ProductsPage() {
+export default function ProductsPage({ products }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   const categories = ['All', 'Drinks', 'Snacks', 'Bundles'];
   const [selectedCategory, setSelectedCategory] = useState('All');
 //  STATE FOR SIDEBAR ---
@@ -64,3 +65,26 @@ export default function ProductsPage() {
     </div>
   );
 }
+
+// This function runs on the server before the page is rendered
+export const getServerSideProps: GetServerSideProps<{ products: Product[] }> = async () => {
+  // Fetch data from our own API endpoint
+  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL 
+  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` 
+  : 'http://localhost:3000';
+
+  const res = await fetch('http://localhost:3000/api/products');
+
+  const rawProducts: MongoProduct[] = await res.json();
+
+  console.log("getServerSideProps: Received raw products from API:", rawProducts);
+
+  // MongoDB's default _id is an object. We need to convert it to a string
+  // so it can be passed as a prop, and map it to our 'id' field.
+  const products = rawProducts.map((product: MongoProduct) => ({
+    ...product,
+    _id: product._id.toString(), // Convert the MongoDB ObjectId object to a string
+  }));
+
+  return { props: { products } };
+};
