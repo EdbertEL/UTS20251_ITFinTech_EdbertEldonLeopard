@@ -1,20 +1,32 @@
 import Header from '@/components/header'; // The '@/' alias points to the 'src' folder
 import ProductCard from '@/components/ProductCard';
+import Sidebar from '@/components/sidebar';
 import { products } from '@/data/dummy-products';
 import { FiSearch } from 'react-icons/fi';
 import { useState } from 'react'; 
 
 export default function ProductsPage() {
   const categories = ['All', 'Drinks', 'Snacks', 'Bundles'];
-
   const [selectedCategory, setSelectedCategory] = useState('All');
+//  STATE FOR SIDEBAR ---
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* We will add the Sidebar component here later */}
-      
-      <Header />
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-10 bg-black opacity-50" // Dark overlay
+          onClick={toggleSidebar} // Clicking the overlay closes the sidebar
+        ></div>
+      )}
 
+      <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} /> 
+      <Header onMenuClick={toggleSidebar} />
+      
       <main className="p-4">
         {/* Search Bar */}
         <div className="relative mb-4 text-gray-500">
