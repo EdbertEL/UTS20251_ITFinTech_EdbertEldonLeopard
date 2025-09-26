@@ -2,8 +2,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { FiChevronLeft, FiPlus, FiMinus } from 'react-icons/fi';
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 
-// A simple header component specific to this page
 function CheckoutHeader() {
   return (
     <header className="flex items-center justify-between border-b p-4">
@@ -13,22 +14,51 @@ function CheckoutHeader() {
         </a>
       </Link>
       <h1 className="text-xl font-bold">Checkout</h1>
-      <div className="w-8"></div> {/* Spacer to keep title centered */}
+      <div className="w-8"></div>
     </header>
   );
 }
 
 export default function CheckoutPage() {
   const { cartItems, updateQuantity } = useCart();
+  const router = useRouter(); 
+
+  const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+
+  const handleCreateOrder = async () => {
+    setIsCreatingOrder(true);
+    try {
+      const response = await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          cartItems, 
+          shippingAddress: "Jl. Prasetiya Mulya No. 1, Jakarta, 12345"
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      const { orderId } = await response.json();
+      
+      router.push(`/payment/${orderId}`);
+
+    } catch (error) {
+      console.error(error);
+      alert('Could not create order. Please try again.');
+      setIsCreatingOrder(false);
+    }
+  };
 
   // Calculate totals
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const tax = subtotal * 0.10; // Example: 10% tax
   const total = subtotal + tax;
   
-  // A placeholder for our future real Order ID from the database
-  const dummyOrderId = 'order-' + Math.random().toString(36).substr(2, 9);
-
   return (
     <div>
       <CheckoutHeader />
@@ -74,11 +104,13 @@ export default function CheckoutPage() {
               </div>
             </div>
             
-            <Link href={`/payment/${dummyOrderId}`} legacyBehavior>
-              <a className="mt-6 block w-full rounded-lg bg-gray-800 p-4 text-center font-semibold text-white hover:bg-gray-700">
-                Continue to Payment &rarr;
-              </a>
-            </Link>
+            <button 
+              onClick={handleCreateOrder}
+              disabled={isCreatingOrder}
+              className="mt-6 block w-full rounded-lg bg-gray-800 p-4 text-center font-semibold text-white transition-colors hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+            >
+              {isCreatingOrder ? 'Processing...' : 'Continue to Payment →'}
+            </button>
           </div>
         )}
       </main>

@@ -32,23 +32,43 @@ export default function PaymentPage() {
   // State to manage which payment method is selected
   const [selectedMethod, setSelectedMethod] = useState('credit-card');
 
+  const [isProcessing, setIsProcessing] = useState(false); // for loading state
+
   // --- Calculations ---
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = 15000; // Example: Flat shipping fee
   const tax = subtotal * 0.10; // Example: 10% tax
   const total = subtotal + shipping + tax;
 
-  // This function will be called when the user clicks "Confirm & Pay"
-  // For now, it's a placeholder. Later, this will trigger the API call to Xendit.
-  const handlePayment = () => {
-    console.log('Initiating payment for:', {
-      orderId,
-      total,
-      paymentMethod: selectedMethod,
-      shippingAddress, // Now we can send the updated address
-      items: cartItems,
-    });
-    alert('Redirecting to payment gateway...');
+  const handlePayment = async () => {
+    setIsProcessing(true);
+    try {
+      const response = await fetch('/api/payment/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create invoice');
+      }
+
+      const { invoiceUrl } = await response.json();
+
+      // Redirect the user to the Xendit payment page
+      window.location.href = invoiceUrl;
+
+    } catch (error) {
+      
+      console.error(error);
+      if (error instanceof Error) {
+        alert(error.message);
+      } else {
+        alert('An unexpected error occurred. Please try again.');
+      }
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -124,9 +144,10 @@ export default function PaymentPage() {
         {/* Confirm and Pay Button */}
         <button
           onClick={handlePayment}
-          className="w-full rounded-lg p-4 bg-gray-800 text-center font-semibold text-white hover:bg-gray-700"
+          disabled={isProcessing}
+          className="w-full rounded-lg bg-gray-800 p-4 font-semibold text-white transition-colors hover:bg-gray-900 disabled:cursor-not-allowed disabled:bg-gray-400"
         >
-          Confirm & Pay
+          {isProcessing ? 'Processing...' : 'Confirm & Pay'}
         </button>
       </main>
     </div>
