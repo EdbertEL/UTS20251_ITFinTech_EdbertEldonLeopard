@@ -1,11 +1,14 @@
 import Image from 'next/image';
 import { Product } from '../types';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
     product: Product;
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+    const { addToCart } = useCart(); 
+
     return (
     <div className="flex items-center space-x-4 rounded-lg border border-gray-200 p-4">
         <Image 
@@ -22,7 +25,8 @@ export default function ProductCard({ product }: ProductCardProps) {
         </p>
         <p className="text-sm text-gray-500">{product.description}</p>
         </div>
-        <button className="rounded-lg border border-gray-300 px-4 py-2 font-semibold text-gray-700 hover:bg-gray-100">
+        <button onClick={() => addToCart(product)} 
+        className="rounded-lg border border-gray-300 px-4 py-2 font-semibold text-gray-700 hover:bg-gray-100">
         Add +
         </button>
     </div>
