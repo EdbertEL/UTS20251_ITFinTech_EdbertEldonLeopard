@@ -5,10 +5,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (req.method === 'GET') {
     try {
       const client = await clientPromise;
-      const db = client.db("products-database");
+      const db = client.db("paymentDB");
 
       const products = await db
-        .collection("products-collection")
+        .collection("products")
         .find({})
         .toArray();
 
