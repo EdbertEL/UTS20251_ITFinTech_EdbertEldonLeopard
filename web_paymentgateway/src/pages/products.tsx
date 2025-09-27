@@ -77,16 +77,21 @@ export default function ProductsPage({ products }: InferGetServerSidePropsType<t
 }
 
 export const getServerSideProps: GetServerSideProps<{ products: Product[] }> = async () => {
-  // Fetch data from our own API endpoint
-  const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL 
-  ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` 
-  : 'http://localhost:3000';
 
-  const res = await fetch('http://localhost:3000/api/products');
-
+  // Use the environment variable you defined in Vercel settings.
+  // Provide localhost as a fallback for local development.
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    
+  // Use the dynamic baseUrl in the fetch call.
+  const res = await fetch(`${baseUrl}/api/products`);
+  // Check if the fetch was successful
+  if (!res.ok) {
+    console.error("Failed to fetch products:", res.status, res.statusText);
+    // Return empty props to prevent a crash
+    return { props: { products: [] } };
+  }
+  
   const rawProducts: MongoProduct[] = await res.json();
-
-  console.log("getServerSideProps: Received raw products from API:", rawProducts);
 
   const products = rawProducts.map((product: MongoProduct) => ({
     ...product,
