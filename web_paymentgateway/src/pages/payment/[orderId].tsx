@@ -29,9 +29,6 @@ export default function PaymentPage({ order }: InferGetServerSidePropsType<typeo
   const [shippingAddress, setShippingAddress] = useState(order.shippingAddress);
   const [isEditingAddress, setIsEditingAddress] = useState(false);
 
-  // State to manage which payment method is selected
-  const [selectedMethod, setSelectedMethod] = useState('credit-card');
-
   const [isProcessing, setIsProcessing] = useState(false); // for loading state
 
   // --- Calculations ---
@@ -127,26 +124,6 @@ export default function PaymentPage({ order }: InferGetServerSidePropsType<typeo
                 {shippingAddress}
               </div>
             )}
-          </div>
-        </section>
-
-        {/* Payment Method Section */}
-        <section>
-          <h2 className="text-lg font-semibold">Payment Method</h2>
-          <div className="mt-2 space-y-3 m-4">
-            {['Credit/Debit Card', 'PayPal', 'Other (e.g. E-Wallet, Bank Transfer)'].map((method) => (
-              <label key={method} className="flex cursor-pointer items-center">
-                <input
-                  type="radio"
-                  name="payment-method"
-                  value={method}
-                  checked={selectedMethod === method}
-                  onChange={() => setSelectedMethod(method)}
-                  className="h-4 w-4 text-gray-800 focus:ring-gray-600"
-                />
-                <span className="ml-3 font-medium">{method}</span>
-              </label>
-            ))}
           </div>
         </section>
 

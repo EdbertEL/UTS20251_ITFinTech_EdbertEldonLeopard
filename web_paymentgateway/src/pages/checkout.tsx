@@ -35,7 +35,7 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify({
           cartItems,
-          shippingAddress: "Jl. Prasetiya Mulya No. 1, Jakarta, 12345",
+          shippingAddress: "Edu Town Kavling Edu I No. 1, Jalan BSD Raya Barat 1, Pagedangan, Kabupaten Tangerang, Banten 15339",
         }),
       });
 

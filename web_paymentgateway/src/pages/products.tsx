@@ -7,7 +7,7 @@ import type { GetServerSideProps, InferGetServerSidePropsType } from 'next';
 import { MongoProduct, Product } from '@/types';
 
 export default function ProductsPage({ products }: InferGetServerSidePropsType<typeof getServerSideProps>) {
-  const categories = ['All', 'Drinks', 'Snacks', 'Bundles'];
+  const categories = ['All', 'Services', 'Digital Products', 'Consulting'];
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [filteredProducts, setFilteredProducts] = useState(products);
 
