@@ -8,8 +8,8 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { cartItems, addToCart, updateQuantity } = useCart();
-  const itemInCart = cartItems.find((item) => item.id === product.id);
-
+  const itemInCart = cartItems.find((item) => item._id === product._id);
+  
   return (
     <div className="flex items-center space-x-4 rounded-lg border border-gray-200 p-4">
       <Image 
