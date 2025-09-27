@@ -23,6 +23,9 @@ export interface OrderItem {
 export interface Order {
   _id?: string;
   items: OrderItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
   totalAmount: number;
   shippingAddress: string;
   status: 'PENDING' | 'PAID' | 'FAILED'; // The status of the payment

@@ -27,29 +27,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const priceMap = new Map(productsFromDB.map(p => [p._id.toString(), p.price]));
 
-    let totalAmount = 0;
+    let subtotal = 0;
     const orderItems: OrderItem[] = cartItems.map(item => {
       const price = priceMap.get(item._id);
       if (price === undefined) {
         throw new Error(`Product with ID ${item._id} not found.`);
       }
-      totalAmount += price * item.quantity;
+      subtotal += price * item.quantity;
       return {
         productId: item._id,
         name: item.name,
-        price: price, // Use the price from the database
+        price: price,
         quantity: item.quantity,
       };
     });
-    
+
     // You can add shipping/tax calculation here if needed
-    const shipping = 15000;
-    totalAmount += shipping;
+    const tax = subtotal * 0.10; // 10% tax
+    const shipping = 15000; // Flat shipping fee
+    const totalAmount = subtotal + tax + shipping;
 
     // Create the new order document
-    const newOrder: Omit<Order, '_id'> = {
+    const newOrder: Omit<Order, '_id' | 'createdAt' | 'updatedAt'> & { createdAt?: Date, updatedAt?: Date } = {
       items: orderItems,
-      totalAmount: totalAmount,
+      subtotal: subtotal, // Save subtotal
+      tax: tax,           // Save tax
+      shipping: shipping, // Save shipping
+      totalAmount: totalAmount, // Save final total
       shippingAddress: shippingAddress,
       status: 'PENDING',
       createdAt: new Date(),

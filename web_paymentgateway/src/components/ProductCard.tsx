@@ -31,14 +31,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         {itemInCart ? (
           <div className="flex items-center justify-end space-x-3">
             <button 
-              onClick={() => updateQuantity(product.id, itemInCart.quantity - 1)}
+              onClick={() => updateQuantity(product._id, itemInCart.quantity - 1)}
               className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-lg font-bold text-gray-600 transition-colors hover:bg-gray-100"
             >
               -
             </button>
             <span className="w-4 text-center font-semibold text-gray-700">{itemInCart.quantity}</span>
             <button 
-              onClick={() => updateQuantity(product.id, itemInCart.quantity + 1)}
+              onClick={() => updateQuantity(product._id, itemInCart.quantity + 1)}
               className="flex h-8 w-8 items-center justify-center rounded-full border border-gray-300 text-lg font-bold text-gray-600 transition-colors hover:bg-gray-100"
             >
               +

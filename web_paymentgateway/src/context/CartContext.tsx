@@ -10,8 +10,8 @@ export interface CartItem extends Product {
 interface CartContextType {
   cartItems: CartItem[];
   addToCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  updateQuantity: (productId: string, quantity: number) => void;
 }
 
 // Create the context with a default undefined value
@@ -23,11 +23,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: Product) => {
     setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id);
+      const existingItem = prevItems.find((item) => item._id === product._id);
       if (existingItem) {
-        // If item already exists, just increase quantity
         return prevItems.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
       // Otherwise, add new item with quantity of 1
@@ -35,23 +34,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const removeFromCart = (productId: number) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== productId));
+  const removeFromCart = (productId: string) => {
+    setCartItems((prevItems) => prevItems.filter((item) => item._id !== productId));
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      // If quantity is 0 or less, remove the item
-      removeFromCart(productId);
-    } else {
-      setCartItems((prevItems) =>
-        prevItems.map((item) =>
-          item.id === productId ? { ...item, quantity } : item
-        )
-      );
-    }
+  const updateQuantity = (productId: string, quantity: number) => {
+    setCartItems((prevItems) => {
+      if (quantity <= 0) {
+        return prevItems.filter((item) => item._id !== productId);
+      } else {
+        return prevItems.map((item) =>
+          item._id === productId ? { ...item, quantity } : item
+        );
+      }
+    });
   };
-
+  
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity }}>
       {children}
