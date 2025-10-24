@@ -101,6 +101,9 @@ export default function LoginPage() {
         <p className="text-center text-sm text-gray-600">
           Don&apos;t have an account yet?{' '}
           <Link href="/register" legacyBehavior><a className="font-medium text-indigo-600 hover:text-indigo-500">Register here</a></Link>
+          <br></br>
+          Are you an admin?{' '}
+          <Link href="/admin/login" legacyBehavior><a className="font-medium text-indigo-600 hover:text-indigo-500">Login here</a></Link>
         </p>
       </div>
     </main>
