@@ -124,7 +124,7 @@ export default function RegistrationPage() {
               </label>
               <div className="relative mt-1">
                 <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                  <span className="text-gray-500 sm:text-sm">+62</span>
+                  <span className="text-gray-500">+62 </span>
                 </div>
                 <input
                   id="phoneNumber"
@@ -134,7 +134,7 @@ export default function RegistrationPage() {
                   // The value displayed is everything AFTER the "+62"
                   value={phoneNumber.substring(3)}
                   onChange={handlePhoneChange}
-                  className="block w-full appearance-none rounded-md border border-gray-300 text-gray-500 px-3 py-2 pl-10 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+                  className="block w-full appearance-none rounded-md border border-gray-300 text-gray-500 px-3 py-2 pl-11 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
                   placeholder="81234567890"
                 />
               </div>
