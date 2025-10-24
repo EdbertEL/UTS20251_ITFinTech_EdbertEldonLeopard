@@ -48,8 +48,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // --- 2. ADD USER INFO TO THE NEW ORDER DOCUMENT ---
     const newOrder: Omit<Order, '_id' | 'createdAt' | 'updatedAt'> & { createdAt?: Date, updatedAt?: Date } = {
-      userId, // <-- ADDED
-      customerName, // <-- ADDED
+      userId,
+      customerName,
       items: orderItems,
       subtotal,
       tax,

@@ -7,10 +7,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, phoneNumber } = req.body; // Get phoneNumber
 
-    // Validation
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !phoneNumber) { // Add phoneNumber to validation
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -29,6 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       name,
       email,
       password, // Storing password in plaintext as requested
+      phoneNumber,
       role: 'customer',
       createdAt: new Date(),
     };

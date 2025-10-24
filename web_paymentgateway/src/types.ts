@@ -26,7 +26,7 @@ export interface MongoProduct extends Omit<Product, '_id'> {
 }
 
 
-// --- ORDER TYPES (CORRECTED) ---
+// --- ORDER TYPES ---
 // This represents an item within an order
 export interface OrderItem {
   productId: string;
@@ -45,15 +45,13 @@ export interface Order {
   totalAmount: number;
   shippingAddress: string;
   status: 'PENDING' | 'PAID' | 'FAILED' | 'SHIPPED';
-  createdAt: string; // Will be an ISO date string
-  updatedAt: string; // Will be an ISO date string
+  createdAt: string;
+  updatedAt: string;
   xenditInvoiceId?: string;
-  userId?: string; // <-- ADD THIS
-  customerName?: string; // <-- ADD THIS
+  userId?: string;
+  customerName?: string;
 }
 
-// This represents the raw data from the MongoDB 'orders' collection
-// This is now simplified to match your actual data structure
 export interface MongoOrder extends Omit<Order, '_id' | 'createdAt' | 'updatedAt'> {
   _id: ObjectId;
   createdAt: Date;
