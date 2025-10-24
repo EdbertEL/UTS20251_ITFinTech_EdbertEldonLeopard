@@ -10,51 +10,52 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { cartItems, shippingAddress }: { cartItems: CartItem[], shippingAddress: string } = req.body;
+    // --- 1. GET USER INFO FROM REQUEST BODY ---
+    const { cartItems, shippingAddress, userId, customerName }: { 
+      cartItems: CartItem[], 
+      shippingAddress: string,
+      userId: string,
+      customerName: string
+    } = req.body;
 
     if (!cartItems || cartItems.length === 0) {
       return res.status(400).json({ message: 'Cart is empty' });
+    }
+    // Add validation for user info
+    if (!userId || !customerName) {
+      return res.status(400).json({ message: 'User information is missing' });
     }
 
     const client = await clientPromise;
     const db = client.db('paymentDB');
     const productsCollection = db.collection('products');
 
-    // --- SECURITY: Server-Side Price Calculation ---
-    // Fetch the real prices from the database to prevent client-side manipulation.
+    // (Server-side price calculation logic remains the same...)
     const productIds = cartItems.map(item => new ObjectId(item._id));
     const productsFromDB = await productsCollection.find({ _id: { $in: productIds } }).toArray();
-
     const priceMap = new Map(productsFromDB.map(p => [p._id.toString(), p.price]));
-
     let subtotal = 0;
     const orderItems: OrderItem[] = cartItems.map(item => {
       const price = priceMap.get(item._id);
-      if (price === undefined) {
-        throw new Error(`Product with ID ${item._id} not found.`);
-      }
+      if (price === undefined) throw new Error(`Product with ID ${item._id} not found.`);
       subtotal += price * item.quantity;
-      return {
-        productId: item._id,
-        name: item.name,
-        price: price,
-        quantity: item.quantity,
-      };
+      return { productId: item._id, name: item.name, price, quantity: item.quantity };
     });
 
-    // You can add shipping/tax calculation here if needed
-    const tax = subtotal * 0.10; // 10% tax
-    const shipping = 15000; // Flat shipping fee
+    const tax = subtotal * 0.10;
+    const shipping = 15000;
     const totalAmount = subtotal + tax + shipping;
 
-    // Create the new order document
+    // --- 2. ADD USER INFO TO THE NEW ORDER DOCUMENT ---
     const newOrder: Omit<Order, '_id' | 'createdAt' | 'updatedAt'> & { createdAt?: Date, updatedAt?: Date } = {
+      userId, // <-- ADDED
+      customerName, // <-- ADDED
       items: orderItems,
-      subtotal: subtotal, // Save subtotal
-      tax: tax,           // Save tax
-      shipping: shipping, // Save shipping
-      totalAmount: totalAmount, // Save final total
-      shippingAddress: shippingAddress,
+      subtotal,
+      tax,
+      shipping,
+      totalAmount,
+      shippingAddress,
       status: 'PENDING',
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -63,7 +64,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const ordersCollection = db.collection('orders');
     const result = await ordersCollection.insertOne(newOrder);
 
-    // Respond with the ID of the newly created order
     res.status(201).json({ orderId: result.insertedId.toString() });
 
   } catch (error) {

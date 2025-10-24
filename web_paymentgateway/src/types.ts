@@ -2,6 +2,14 @@
 
 import { ObjectId } from 'mongodb';
 
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: 'customer' | 'admin';
+  // We can add a cart here later if we want to sync it with the DB
+}
+
 // --- PRODUCT TYPES ---
 // (No changes needed here, this should already be correct)
 export interface Product {
@@ -40,6 +48,8 @@ export interface Order {
   createdAt: string; // Will be an ISO date string
   updatedAt: string; // Will be an ISO date string
   xenditInvoiceId?: string;
+  userId?: string; // <-- ADD THIS
+  customerName?: string; // <-- ADD THIS
 }
 
 // This represents the raw data from the MongoDB 'orders' collection

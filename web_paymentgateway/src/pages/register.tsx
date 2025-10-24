@@ -1,35 +1,34 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { FormEvent } from 'react';
+import type { FormEvent } from 'react'; // Import FormEvent for type safety
 import { useRouter } from 'next/router';
-import { useAuth } from '@/context/AuthContext';
 
-export default function LoginPage() {
+export default function RegistrationPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const { login } = useAuth(); // Get the login function from our context
 
-  const handleLogin = async (e: FormEvent) => {
+  const handleRegister = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ name, email, password }),
       });
 
       const data = await res.json();
 
       if (res.ok) {
-        login(data.user); // Save the user data to the global context
-        router.push('/products'); // Redirect to the product catalog
+        alert('Registration successful! Please log in.');
+        router.push('/'); // Redirect to the login page
       } else {
-        setError(data.message || 'Login failed.');
+        setError(data.message || 'Registration failed.');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -48,15 +47,30 @@ export default function LoginPage() {
             className="mx-auto"
           />
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-gray-900">
-            Login to your account
+            Create Your Account
           </h1>
           <p className="mt-2 text-sm text-gray-600">
-            Welcome back to Edesign.
+            Join Edesign to get started.
           </p>
         </div>
 
         <div className="rounded-lg bg-white p-8 shadow-lg">
-          <form className="space-y-6" onSubmit={handleLogin}>
+          <form className="space-y-6" onSubmit={handleRegister}>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Full Name
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1 block w-full appearance-none rounded-md border border-gray-300 text-gray-500 px-3 py-2 placeholder-gray-400 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-indigo-500"
+              />
+            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -81,7 +95,7 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -96,17 +110,17 @@ export default function LoginPage() {
                 type="submit"
                 className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               >
-                Login
+                Register
               </button>
             </div>
           </form>
         </div>
 
         <p className="text-center text-sm text-gray-600">
-          Don&apos;t have an account yet?{' '}
-          <Link href="/register" legacyBehavior>
+          Already have an account?{' '}
+          <Link href="/" legacyBehavior>
             <a className="font-medium text-indigo-600 hover:text-indigo-500">
-              Register here
+              Login here
             </a>
           </Link>
         </p>

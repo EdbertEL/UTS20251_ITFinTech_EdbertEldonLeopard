@@ -75,7 +75,7 @@ export default function TransactionsPage({ orders }: InferGetServerSidePropsType
                     <tr key={order._id} onClick={() => handleRowClick(order._id)} className="cursor-pointer hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono" title={order._id}>{order._id.substring(0, 8)}...</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(order.createdAt).toLocaleDateString('en-CA')}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Username</td> {/* Placeholder sementara smp nanti kita tambah user registration*/}
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{order.customerName || 'Guest / Old Order'}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{totalItems}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-semibold">{formatCurrency(order.totalAmount)}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
