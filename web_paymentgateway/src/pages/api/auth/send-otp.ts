@@ -1,12 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import clientPromise from '@/lib/mongodb';
-import twilio from 'twilio';
-
-// Initialize Twilio client
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const twilioClient = twilio(accountSid, authToken);
-const twilioWhatsAppNumber = process.env.TWILIO_WHATSAPP_NUMBER;
 
 // Helper to generate a random 6-digit OTP
 const generateOTP = () => Math.floor(100000 + Math.random() * 900000).toString();
@@ -23,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const db = client.db('paymentDB');
     const usersCollection = db.collection('users');
 
-    // Find user and check password (plaintext as requested)
+    // Find user and check password
     const user = await usersCollection.findOne({ email, password });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -33,20 +26,36 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     const otp = generateOTP();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP is valid for 10 minutes
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
 
-    // Save OTP and expiry to the user's document in the database
+    // Save OTP to the user's document
     await usersCollection.updateOne(
       { _id: user._id },
       { $set: { otp, otpExpiry } }
     );
 
-    // Send the WhatsApp message via Twilio
-    await twilioClient.messages.create({
-      body: `Your Edesign login OTP is: ${otp}`,
-      from: twilioWhatsAppNumber,
-      to: `whatsapp:${user.phoneNumber}`,
+    // --- FONNTE API CALL ---
+    const fonnteToken = process.env.FONNTE_TOKEN;
+    const fonnteTargetNumber = user.phoneNumber.replace('+', ''); // Fonnte usually doesn't need the '+'
+
+    const response = await fetch('https://api.fonnte.com/send', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': fonnteToken || '', // Get token from .env
+      },
+      body: JSON.stringify({
+        target: fonnteTargetNumber,
+        message: `Your Edesign login OTP is: ${otp}`,
+      }),
     });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Fonnte API Error:", errorData);
+        throw new Error('Failed to send OTP via Fonnte.');
+    }
+    // --- END OF FONNTE CALL ---
 
     res.status(200).json({ message: 'OTP sent successfully.' });
 
